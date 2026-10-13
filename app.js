@@ -119,12 +119,33 @@
   onScroll();
   addEventListener('scroll', onScroll, { passive: true });
 
+  /* ================= REVEAL ON SCROLL ================= */
+  (function () {
+    var targets = [];
+    document.querySelectorAll('[data-stagger]').forEach(function (g) {
+      Array.prototype.forEach.call(g.children, function (c, i) { c.style.setProperty('--d', (i * 0.09) + 's'); targets.push(c); });
+    });
+    document.querySelectorAll('[data-reveal],[data-reveal-scale],.tl').forEach(function (el) { targets.push(el); });
+    function show(el) { el.classList.add('is-in'); }
+    if (!('IntersectionObserver' in window)) { targets.forEach(show); return; }
+    var ro = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { show(e.target); ro.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.01 });
+    targets.forEach(function (el) { ro.observe(el); });
+    setTimeout(function () { targets.forEach(function (el) { if (el.getBoundingClientRect().top < innerHeight) show(el); }); }, 2500);
+  })();
+
   /* ================= MOTION ================= */
   var M = window.Motion;
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!M || reduce) { root.classList.remove('js-motion'); return; }
 
-  var animate = M.animate, inView = M.inView, stagger = M.stagger, scroll = M.scroll;
+  var rawAnimate = M.animate;
+  var animate = function (t, k, o) {
+    try { return rawAnimate(t, k, o); }
+    catch (e) { [].concat(t && t.length !== undefined && typeof t !== 'string' ? Array.prototype.slice.call(t) : [t]).forEach(function (el) { if (el && el.style) { el.style.opacity = 1; el.style.transform = 'none'; } }); }
+  };
+  var inView = M.inView, stagger = M.stagger, scroll = M.scroll;
   var ease = [0.16, 1, 0.3, 1];
 
   // Hero title: split words and drop them in
@@ -147,7 +168,7 @@
     };
     wrap(h);
     h.classList.add('is-split');
-    animate(h.querySelectorAll('.w'),
+    animate(Array.prototype.slice.call(h.querySelectorAll('.w')),
       { opacity: [0, 1], y: [48, 0], rotateX: [-60, 0], filter: ['blur(8px)', 'blur(0px)'] },
       { duration: 0.9, delay: stagger(0.06), ease: ease });
   });
@@ -167,36 +188,9 @@
     scroll(animate(px, { y: [0, 90] }, { ease: 'linear' }), { target: hero, offset: ['start start', 'end start'] });
   }
 
-  // Reveal singles
-  document.querySelectorAll('[data-reveal]').forEach(function (el) {
-    inView(el, function () {
-      animate(el, { opacity: [0, 1], y: [34, 0] }, { duration: 0.85, ease: ease });
-    }, { margin: '0px 0px -10% 0px' });
-  });
-
-  // Reveal with scale
-  document.querySelectorAll('[data-reveal-scale]').forEach(function (el) {
-    inView(el, function () {
-      animate(el, { opacity: [0, 1], scale: [0.94, 1], y: [40, 0] }, { duration: 1, ease: ease });
-    }, { margin: '0px 0px -10% 0px' });
-  });
-
-  // Staggered groups
-  document.querySelectorAll('[data-stagger]').forEach(function (group) {
-    inView(group, function () {
-      animate(group.children, { opacity: [0, 1], y: [40, 0], scale: [0.97, 1] }, { duration: 0.75, delay: stagger(0.09), ease: ease });
-    }, { margin: '0px 0px -10% 0px' });
-  });
-
   // Timeline progress line + cards
   var tl = document.querySelector('[data-timeline]');
   if (tl) {
-    tl.querySelectorAll('.tl').forEach(function (item) {
-      item.style.opacity = 0;
-      inView(item, function () {
-        animate(item, { opacity: [0, 1], x: [-30, 0] }, { duration: 0.8, ease: ease });
-      }, { margin: '0px 0px -15% 0px' });
-    });
     if (scroll) {
       scroll(function (p) { tl.style.setProperty('--progress', Math.min(100, p * 140) + '%'); },
         { target: tl, offset: ['start 75%', 'end 50%'] });

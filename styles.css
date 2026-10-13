@@ -16,8 +16,9 @@
   --topbar:40px;
 }
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:clip;max-width:100%}
+main,section,footer{max-width:100vw;overflow-x:clip}
 img{max-width:100%;height:auto;display:block}
 a{color:inherit}
 b,strong{color:#fff;font-weight:700}
@@ -106,15 +107,17 @@ b,strong{color:#fff;font-weight:700}
 .badge-float__n{font-family:var(--display);font-weight:900;font-size:44px;line-height:1;color:var(--red-2)}
 .badge-float__t{font-family:var(--display);font-weight:700;text-transform:uppercase;line-height:1.05;font-size:15px;letter-spacing:.06em}
 @media (max-width:900px){
-  .hero{padding:24px 0 56px}
+  .hero{padding:20px 0 48px}
+  .hero__sub{margin-bottom:22px}
+  .intel{margin-bottom:24px}
   .hero__inner{grid-template-columns:1fr;gap:36px}
   .hero__media{max-width:420px;margin:0 auto;width:100%}
-  .badge-float{left:-6px;bottom:20px}
+  .badge-float{left:10px;bottom:20px}
 }
 @media (max-width:420px){.intel{grid-template-columns:1fr 1fr;gap:8px}.intel__v{font-size:16px}}
 
 /* ===== TICKER ===== */
-.ticker{overflow:hidden;background:var(--red);transform:rotate(-1.2deg);margin:0 -20px;padding:14px 0;border-block:2px solid #000}
+.ticker{overflow:hidden;background:var(--red);transform:rotate(-1.2deg) scale(1.03);margin:0;padding:14px 0;border-block:2px solid #000}
 .ticker__track{display:flex;width:max-content;gap:28px;animation:marquee 32s linear infinite;font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:22px;letter-spacing:.06em;white-space:nowrap}
 .ticker i{font-style:normal;opacity:.7}
 @keyframes marquee{to{transform:translateX(-50%)}}
@@ -275,7 +278,10 @@ b,strong{color:#fff;font-weight:700}
 @keyframes wa{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.6);opacity:0}}
 
 /* initial states for JS reveal (only when motion is on) */
-.js-motion [data-reveal],.js-motion [data-stagger]>*,.js-motion [data-reveal-scale]{opacity:0}
+.js-motion [data-reveal],.js-motion [data-stagger]>*,.js-motion [data-reveal-scale],.js-motion .tl{opacity:0;transform:translateY(32px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1),border-color .3s;transition-delay:var(--d,0s)}
+.js-motion [data-reveal-scale]{transform:translateY(40px) scale(.95)}
+.js-motion .tl{transform:translateX(-30px)}
+.js-motion .is-in{opacity:1;transform:none}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
